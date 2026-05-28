@@ -1,5 +1,13 @@
 # UWJS-Project-3 Justin's Coffee Shop
 The final project for UW JS certificate course 3. 
+
+
+Proof of Concept Update:
+General framework is setup for making this project with daos, middleware, models, routes, and views (for mustache). Node packages are setup with express, 
+mongoose, and mustache. A very basic landing is setup. Index/server are setup and can host the mustache page. Now I need to add the daos, middleware, routes, 
+views, and models. In general the project is ready for legitimate content to be added, showing a clear and usable framework.
+
+
 1. Something I've always been interesting in doing with my CS knowledge is helping small businesses create fun, interactive, and functional websites. This project is gonna be a simple coffee shop that always (fake) online ordering.
 2. A lot of small businesses have websites that link to external ordering services such as Toast, Chownow, or Clover. But I think having a proprietary ordering service shows more individuality, creativity, and keeps people thinking about your business more specifically.
 3. At the start of the project, my focus will be creating routes for admins to add items to the menu along with prices, modify existing menu items and prices, and view current orders and order statistics. I also want to add functionality for the user to view items and prices, and order items. I will need to add Daos for items, ordering, and users, along with maybe statistics for order history and trends.
