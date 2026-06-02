@@ -1,9 +1,457 @@
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <title>Landing Page</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Justin's Coffee Shop</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f3ef;
+        --card: #ffffff;
+        --ink: #2a211b;
+        --muted: #6e6258;
+        --accent: #7a4b2f;
+        --accent-2: #a1603d;
+        --line: #e6dbd2;
+        --ok: #1f7a3f;
+        --bad: #a32828;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+        background: linear-gradient(180deg, #f8f4f0 0%, #f3ece5 100%);
+        color: var(--ink);
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        margin-top: 0;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 6px 16px rgba(42, 33, 27, 0.05);
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 1.1rem;
+      }
+
+      input,
+      textarea,
+      button,
+      select {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        padding: 10px;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+      }
+
+      button {
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      button:hover {
+        background: var(--accent-2);
+      }
+
+      button.secondary {
+        background: #d9c7b9;
+        color: #3f3026;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .status {
+        margin: 8px 0 0;
+        min-height: 1.3rem;
+        font-size: 0.92rem;
+      }
+
+      .status.ok {
+        color: var(--ok);
+      }
+
+      .status.bad {
+        color: var(--bad);
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: #fffdfa;
+      }
+
+      .row {
+        display: flex;
+        gap: 8px;
+      }
+
+      .row > * {
+        flex: 1;
+      }
+
+      .menu-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .menu-actions button {
+        margin: 0;
+      }
+
+      .pill {
+        display: inline-block;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-left: 6px;
+      }
+    </style>
   </head>
   <body>
-    <h1>{{message}}</h1>
-    <p>Welcome to the Coffee Shop!</p>
+    <main class="container">
+      <h1>{{message}}</h1>
+      <p class="subtitle">A small coffee shop API for class, with menus, orders, and some authentication.</p>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Account</h2>
+          <p class="muted">Register or login to place an order.</p>
+          <div class="row">
+            <input id="name" placeholder="Name " />
+            <input id="email" type="email" placeholder="Email" />
+          </div>
+          <input id="password" type="text" placeholder="Password" />
+          <div class="row">
+            <button id="registerBtn">Register</button>
+            <button id="loginBtn">Login</button>
+          </div>
+          <button id="logoutBtn" class="secondary">Logout</button>
+          <p id="authStatus" class="status"></p>
+        </section>
+
+        <section class="card">
+          <h2>Menu</h2>
+          <div class="row">
+            <input id="search" placeholder="Search menu" />
+            <button id="searchBtn">Search</button>
+          </div>
+          <button id="loadMenuBtn" class="secondary">Load full menu</button>
+          <ul id="menuList"></ul>
+          <p id="menuStatus" class="status"></p>
+        </section>
+
+        <section class="card">
+          <h2>Cart & Order</h2>
+          <p class="muted">Build a cart from menu items and submit an order.</p>
+          <ul id="cartList"></ul>
+          <textarea id="orderNotes" rows="3" placeholder="Order notes (optional)"></textarea>
+          <button id="placeOrderBtn">Place Order</button>
+          <p id="orderStatus" class="status"></p>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const state = {
+        token: localStorage.getItem('coffeeToken') || '',
+        menuItems: [],
+        cart: [],
+      };
+
+      const els = {
+        name: document.getElementById('name'),
+        email: document.getElementById('email'),
+        password: document.getElementById('password'),
+        registerBtn: document.getElementById('registerBtn'),
+        loginBtn: document.getElementById('loginBtn'),
+        logoutBtn: document.getElementById('logoutBtn'),
+        authStatus: document.getElementById('authStatus'),
+        search: document.getElementById('search'),
+        searchBtn: document.getElementById('searchBtn'),
+        loadMenuBtn: document.getElementById('loadMenuBtn'),
+        menuList: document.getElementById('menuList'),
+        menuStatus: document.getElementById('menuStatus'),
+        cartList: document.getElementById('cartList'),
+        orderNotes: document.getElementById('orderNotes'),
+        placeOrderBtn: document.getElementById('placeOrderBtn'),
+        orderStatus: document.getElementById('orderStatus'),
+      };
+
+      function setStatus(el, message, ok = true) {
+        el.textContent = message;
+        el.className = `status ${ok ? 'ok' : 'bad'}`;
+      }
+
+      function money(n) {
+        return `$${Number(n).toFixed(2)}`;
+      }
+
+      function authHeaders() {
+        const headers = { 'Content-Type': 'application/json' };
+        if (state.token) {
+          headers.Authorization = `Bearer ${state.token}`;
+        }
+        return headers;
+      }
+
+      async function request(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || `Request failed (${res.status})`);
+        }
+        return data;
+      }
+
+      function persistToken(token) {
+        state.token = token || '';
+        if (state.token) {
+          localStorage.setItem('coffeeToken', state.token);
+        } else {
+          localStorage.removeItem('coffeeToken');
+        }
+      }
+
+      function renderMenu() {
+        if (!state.menuItems.length) {
+          els.menuList.innerHTML = '';
+          return;
+        }
+
+        els.menuList.innerHTML = state.menuItems
+          .map(
+            (item) => `
+              <li>
+                <strong>${item.name}</strong>
+                <span class="pill">${item.category || 'menu'}</span><br />
+                <span class="muted">${item.description || 'No description'}</span><br />
+                <strong>${money(item.price)}</strong>
+                <div class="menu-actions">
+                  <button data-add="${item._id}">Add to cart</button>
+                </div>
+              </li>
+            `,
+          )
+          .join('');
+      }
+
+      function renderCart() {
+        if (!state.cart.length) {
+          els.cartList.innerHTML = '<li class="muted">Cart is empty.</li>';
+          return;
+        }
+
+        const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        els.cartList.innerHTML = `${state.cart
+          .map(
+            (item) => `
+              <li>
+                <strong>${item.name}</strong> × ${item.quantity} — ${money(item.price * item.quantity)}
+                <div class="menu-actions">
+                  <button data-dec="${item.menuItemId}">-1</button>
+                  <button data-inc="${item.menuItemId}">+1</button>
+                  <button class="secondary" data-remove="${item.menuItemId}">Remove</button>
+                </div>
+              </li>
+            `,
+          )
+          .join('')}
+          <li><strong>Total: ${money(total)}</strong></li>`;
+      }
+
+      async function loadMenu(query = '') {
+        try {
+          const endpoint = query ? `/menu/search?q=${encodeURIComponent(query)}` : '/menu';
+          const data = await request(endpoint);
+          state.menuItems = data.items || [];
+          renderMenu();
+          setStatus(els.menuStatus, `Loaded ${state.menuItems.length} menu item(s).`);
+        } catch (err) {
+          setStatus(els.menuStatus, err.message, false);
+        }
+      }
+
+      function addToCart(menuItemId) {
+        const item = state.menuItems.find((x) => x._id === menuItemId);
+        if (!item) return;
+
+        const existing = state.cart.find((x) => x.menuItemId === menuItemId);
+        if (existing) {
+          existing.quantity += 1;
+        } else {
+          state.cart.push({
+            menuItemId,
+            name: item.name,
+            price: Number(item.price),
+            quantity: 1,
+          });
+        }
+        renderCart();
+      }
+
+      function updateCart(menuItemId, delta) {
+        const entry = state.cart.find((x) => x.menuItemId === menuItemId);
+        if (!entry) return;
+        entry.quantity += delta;
+        if (entry.quantity <= 0) {
+          state.cart = state.cart.filter((x) => x.menuItemId !== menuItemId);
+        }
+        renderCart();
+      }
+
+      async function register() {
+        try {
+          const name = els.name.value.trim();
+          const email = els.email.value.trim();
+          const password = els.password.value;
+          const data = await request('/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password }),
+          });
+          persistToken(data.token);
+          setStatus(els.authStatus, `Registered as ${data.user?.name || 'user'}.`);
+        } catch (err) {
+          setStatus(els.authStatus, err.message, false);
+        }
+      }
+
+      async function login() {
+        try {
+          const email = els.email.value.trim();
+          const password = els.password.value;
+          const data = await request('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          persistToken(data.token);
+          setStatus(els.authStatus, `Logged in as ${data.user?.name || data.user?.email || 'user'}.`);
+        } catch (err) {
+          setStatus(els.authStatus, err.message, false);
+        }
+      }
+
+      async function placeOrder() {
+        if (!state.token) {
+          setStatus(els.orderStatus, 'Please login first before placing an order.', false);
+          return;
+        }
+
+        if (!state.cart.length) {
+          setStatus(els.orderStatus, 'Add at least one menu item to your cart.', false);
+          return;
+        }
+
+        try {
+          const payload = {
+            items: state.cart.map((item) => ({
+              menuItemId: item.menuItemId,
+              quantity: item.quantity,
+            })),
+            notes: els.orderNotes.value.trim(),
+          };
+
+          const data = await request('/orders', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify(payload),
+          });
+
+          state.cart = [];
+          els.orderNotes.value = '';
+          renderCart();
+          setStatus(els.orderStatus, `Order placed! ID: ${data.order?._id || 'created'}`);
+        } catch (err) {
+          setStatus(els.orderStatus, err.message, false);
+        }
+      }
+
+      function logout() {
+        persistToken('');
+        setStatus(els.authStatus, 'Logged out.');
+      }
+
+      els.registerBtn.addEventListener('click', register);
+      els.loginBtn.addEventListener('click', login);
+      els.logoutBtn.addEventListener('click', logout);
+      els.searchBtn.addEventListener('click', () => loadMenu(els.search.value.trim()));
+      els.loadMenuBtn.addEventListener('click', () => loadMenu());
+      els.placeOrderBtn.addEventListener('click', placeOrder);
+
+      els.menuList.addEventListener('click', (e) => {
+        const menuItemId = e.target?.dataset?.add;
+        if (menuItemId) {
+          addToCart(menuItemId);
+        }
+      });
+
+      els.cartList.addEventListener('click', (e) => {
+        const inc = e.target?.dataset?.inc;
+        const dec = e.target?.dataset?.dec;
+        const remove = e.target?.dataset?.remove;
+        if (inc) updateCart(inc, 1);
+        if (dec) updateCart(dec, -1);
+        if (remove) {
+          state.cart = state.cart.filter((x) => x.menuItemId !== remove);
+          renderCart();
+        }
+      });
+
+      renderCart();
+      loadMenu();
+      if (state.token) {
+        setStatus(els.authStatus, 'Saved login token found. You can place orders now.');
+      }
+    </script>
   </body>
 </html>
