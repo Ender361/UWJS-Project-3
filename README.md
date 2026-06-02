@@ -1,26 +1,146 @@
-# UWJS-Project-3 Justin's Coffee Shop
-The final project for UW JS certificate course 3. 
+# Justin's Coffee Shop
+
+This is my final back-end project for the University of Washington full stack with Javascript certificate. It’s a coffee shop API with login, menu management,
+and order handling.
+
+I kept the idea pretty simple on purpose so I could finish it on time and be able to easily add more.
+
+## What it does
+
+- user registration and login
+- token-based authentication
+- role-based authorization for admin routes
+- CRUD for menu items
+- CRUD for orders
+- text search on menu items
+- aggregation for order summary stats
+- Jest tests with line coverage above 80%
+
+## Tech stack
+
+- Node.js
+- Express
+- MongoDB with Mongoose
+- Jest for testing
+
+## Folder structure
+
+- `server.js` — Express app setup
+- `index.js` — database connection and app startup
+- `routes/` — API route handlers
+- `models/` — Mongoose models
+- `middleware/` — authentication and authorization middleware
+- `utils/` — token helper functions
+- `views/` — Mustache landing page
+
+## Main features
+
+### Authentication and authorization
+
+- `POST /auth/register` - Register a user (name, email, password, role)
+- `POST /auth/login` - Login a user
+- `GET /auth/me` - Returns logged in user
+- `GET /auth/admin-check` - Checks if logged in as admin
+
+Users get a signed token after login or registration. Admin-only endpoints are protected with role checks.
+
+### Menu routes
+
+- `GET /menu` - Returns current menu
+- `GET /menu/search?q=latte` - Returned searched item(s)
+- `GET /menu/:id` - Returns searched item by id
+- `POST /menu` — Creates a menu item, admin only (name, description, price, category, available boolean)
+- `PATCH /menu/:id` — Modifies a menu item, admin only
+- `DELETE /menu/:id` — Deletes a menu item, admin only
+
+### Order routes
+
+- `GET /orders` - Returns orders for logged in user, or all for admins
+- `GET /orders/:id` - Returns an order by specific id, admin or user order only
+- `POST /orders` - Creates an order
+- `PATCH /orders/:id` - Modifies an existing order by id
+- `DELETE /orders/:id` — Deletes an order by id, admin only
+- `GET /orders/stats/summary` — Returns total orders and revenue, admin only
+
+## Data model notes
+
+The MongoDB models include indexes and constraints where they actually help:
+
+- `User.email` is unique and indexed
+- `MenuItem.name` is unique and indexed
+- menu items use a text index for search
+- orders are indexed by `user`, `status`, and `createdAt`
+
+## Testing
+
+I used **Jest** for the test suite and stuck mostly to unit-style route and middleware tests.
+
+Current coverage from the last run:
+
+- **Line coverage:** 96.57%
+- **All tests passing:** 47/47
+
+The tests cover:
+
+- token helpers
+- auth middleware
+- landing/health route behavior
+- user model password hashing and verification
+- order model validation
+- auth routes
+- menu routes
+- order routes
+
+## What I learned
+
+Mostly from this project I learned how to use Mustache with front end user interaction for connecting with back end api calls, how to setup a basic framework for back end apis, and how to write jest unit tests into my code. 
+
+### What worked well
+
+- Breaking the app into routes, middleware, models, and utilities kept things manageable.
+- Adding indexes and search/aggregation features made the project feel closer to a real app and scale better with added changes.
+- Keeping the front end simple let me focus on the API work.
+
+### What did not work as well
+
+- I spent a lot of time just getting the initial framework started and to look like something we had done in class so far.
+- I feel like I could have used a better system to make the front end work, the one massive mustache file feels confusing.
+- I still do not feel as comfortable writing tests as I wish I was.
+- I used ai to help with a lot of features, which was useful, but specifically for the front end and the jest tests I feel like I would have understood it better if I had used less ai. 
+
+### What I would do differently
+
+- Start with the final models and routes earlier.
+- Write tests alongside each feature instead of saving them for the end.
+- Keep auth simpler from the start.
+- Stick to a smaller set of features and polish those first.
+
+## Future improvements
+
+If I kept working on this project, I would probably add:
+
+- password updates and account management
+- order history filtering and more detailed analytics
+- a more advanced front end with a more polished and pretty user interface
+- better validation and error formatting
+
+## Running the project
+
+Start the app:
+
+- `npm start`
+
+Run the tests:
+
+- `npm test -- --coverage --runInBand`
+
+## Final reflection
+
+Overall, I feel happy with how this project turned out, it meets the requirements and I definitely feel more skilled in creating websites like this, it just feels like to really hone this skill I would make a bunch of websites somewhat similar to this to learn intricacies and muscle memory better.
+
+The biggest thing I took away from it is that a finished project is better than a huge unfinished one. I think one of my favorite parts of this project is I would feel comforatable changing and improving it.
 
 
-
-## Proof of Concept Update
-
-### What is finished:
-- Project folder structure is set up for daos, middleware, models, routes, and views (mustache).
-- Node packages are installed: express, mongoose, mustache.
-- Express server is set up and running (see server.js).
-- MongoDB connection is established using mongoose (see server.js).
-- Basic landing page is working and served with Mustache.
-- Project is ready for future work to fit within the current framework.
-
-### What still needs to be done:
-- Implement actual DAOs, middleware, routes, and models.
-- Add more views and expand the landing page.
-- Add admin and user functionality for menu and orders.
-- Add authentication/authorization for admin routes.
-- Write unit tests and improve code coverage.
-
-In general, the project is ready for legitimate content to be added, showing a clear and usable framework.
 
 
 1. Something I've always been interesting in doing with my CS knowledge is helping small businesses create fun, interactive, and functional websites. This project is gonna be a simple coffee shop that always (fake) online ordering.
